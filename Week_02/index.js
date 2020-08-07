@@ -165,60 +165,82 @@ var preorderTraversal = function(root) {
   return res
 };
 
-// [非作业] 145. 二叉树的后序遍历
-// 递归
-var postorderTraversal1 = function(root) {
-  const res = []
-  function recursion(node) {
-    if (node) {
-      recursion(node.left)
-      recursion(node.right)
-      res.push(node.val)
-    }
-  }
-  recursion(root)
-  return res
-};
-// 迭代
-var postorderTraversal = function(root) {
-  const res = []
-  const stack = []
-  root && stack.push(root)
-  while (stack.length) {
-    const node = stack.pop()
-    res.unshift(node.val)
-    node.left && stack.push(node.left)
-    node.right && stack.push(node.right)
-  }
-  return res
-};
-
-// 102. 二叉树的层序遍历
-// 迭代 O(N)
-var levelOrder = function(root) {
+// 429. N叉树的层序遍历
+// 迭代, 逐层遍历 O(n)
+var levelOrder11 = function(root) {
   const res = []
   let stack = []
   root && stack.push(root)
   while (stack.length) {
-    const currentList = []
-    const currentRes = []
+    const levelRes = []
+    let levelStack = []
     for (let node of stack) {
-      currentRes.push(node.val)
-      node.left && currentList.push(node.left)
-      node.right && currentList.push(node.right)
+      levelRes.push(node.val)
+      if (node.children) {
+        levelStack = levelStack.concat(node.children)
+      }
     }
-    res.push(currentRes)
-    stack = currentList
+    res.push(levelRes)
+    stack = levelStack
   }
   return res
 };
+// 迭代, 双端队列 O(n)
+var levelOrder22 = function(root) {
+  const res = []
+  let stack = []
+  root && stack.push(root)
+  while (stack.length) {
+    const levelCount = stack.length
+    const levelRes = []
+    for (let i = 0; i < levelCount; i++) {
+      const node = stack.shift()
+      levelRes.push(node.val)
+      if (node.children) {
+        stack = stack.concat(node.children)
+      }
+    }
+    res.push(levelRes)
+  }
+  return res
+};
+// 深度优先 O(n)
+var levelOrder = function(root) {
+  const res = []
+  if (!root) { return [] }
+  function recursion(level, node) {
+    if (res.length < level) {
+      res.push([])
+    }
+    res[level - 1].push(node.val)
+    if (node.children) {
+      for (let item of node.children) {
+        recursion(level + 1, item)
+      }
+    }
+  }
+  recursion(1, root)
+  return res
+};
 
-
-
-
-
-
-
+// TODO: 264. 丑数 II (https://leetcode-cn.com/problems/ugly-number-ii/)
+// TODO: 347. 前 K 个高频元素 (https://leetcode-cn.com/problems/top-k-frequent-elements/)
+// 347. 前 K 个高频元素
+// 第一次: 使用功能函数
+var topKFrequent = function(nums, k) {
+  const map = {}
+  for (let val of nums) {
+    if (map[val]) {
+      map[val].count++
+    } else {
+      map[val] = {
+        val,
+        count: 1
+      }
+    }
+  }
+  return Object.values(map).sort((a, b) => b.count - a.count).slice(0, k).map(item => item.val)
+};
 
 
 
